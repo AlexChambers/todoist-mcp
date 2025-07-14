@@ -22,8 +22,12 @@ export function registerQuickAddTask(server: McpServer, api: TodoistApi) {
                 .optional()
                 .default(false)
                 .describe('Add default reminder for tasks with due times'),
+            projectName: z
+                .string()
+                .optional()
+                .describe('Project name for verification (if project is specified in text)'),
         },
-        async ({ text, note, reminder, autoReminder }) => {
+        async ({ text, note, reminder, autoReminder, projectName }) => {
             const args: QuickAddTaskArgs = {
                 text,
             }
@@ -33,6 +37,16 @@ export function registerQuickAddTask(server: McpServer, api: TodoistApi) {
             if (autoReminder !== undefined) args.autoReminder = autoReminder
 
             const task = await api.quickAddTask(args)
+
+            // If projectName is provided, verify the task was created in the expected project
+            if (projectName) {
+                const project = await api.getProject(task.projectId)
+                if (project.name !== projectName) {
+                    throw new Error(
+                        `Task was created in project "${project.name}" but expected "${projectName}"`,
+                    )
+                }
+            }
 
             return {
                 content: [{ type: 'text', text: JSON.stringify(task, null, 2) }],

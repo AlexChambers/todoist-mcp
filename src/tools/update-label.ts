@@ -1,6 +1,7 @@
 import type { TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { validateLabel } from '../utils/verification.js'
 
 export function registerUpdateLabel(server: McpServer, api: TodoistApi) {
     server.tool(
@@ -8,6 +9,7 @@ export function registerUpdateLabel(server: McpServer, api: TodoistApi) {
         'Update a label in Todoist',
         {
             labelId: z.string(),
+            labelName: z.string().describe('Label name for verification'),
             name: z.string(),
             color: z
                 .enum([
@@ -35,7 +37,10 @@ export function registerUpdateLabel(server: McpServer, api: TodoistApi) {
             isFavorite: z.boolean().optional(),
             order: z.number().optional(),
         },
-        async ({ labelId, name, color, isFavorite, order }) => {
+        async ({ labelId, labelName, name, color, isFavorite, order }) => {
+            // Validate label before updating
+            await validateLabel(labelId, labelName, api)
+
             const success = await api.updateLabel(labelId, { name, color, isFavorite, order })
             return {
                 content: [

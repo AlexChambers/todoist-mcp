@@ -1,6 +1,7 @@
 import type { AddCommentArgs, TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { validateProject, validateTask } from '../utils/verification.js'
 
 export function registerAddComment(server: McpServer, api: TodoistApi) {
     server.tool(
@@ -8,7 +9,9 @@ export function registerAddComment(server: McpServer, api: TodoistApi) {
         'Add a comment to a task or project',
         {
             taskId: z.string().optional().describe('Task ID to add comment to'),
+            taskName: z.string().optional().describe('Task name for verification'),
             projectId: z.string().optional().describe('Project ID to add comment to'),
+            projectName: z.string().optional().describe('Project name for verification'),
             content: z.string().describe('Comment content'),
             attachment: z
                 .object({
@@ -20,10 +23,20 @@ export function registerAddComment(server: McpServer, api: TodoistApi) {
                 .optional()
                 .describe('Attachment for the comment'),
         },
-        async ({ taskId, projectId, content, attachment }) => {
+        async ({ taskId, taskName, projectId, projectName, content, attachment }) => {
             // Ensure one and only one of taskId or projectId is provided
             if ((!taskId && !projectId) || (taskId && projectId)) {
                 throw new Error('You must provide exactly one of taskId or projectId')
+            }
+
+            // Validate task if taskId is provided
+            if (taskId && taskName && projectName) {
+                await validateTask(taskId, taskName, projectName, api)
+            }
+
+            // Validate project if projectId is provided
+            if (projectId && projectName) {
+                await validateProject(projectId, projectName, api)
             }
 
             // Create comment arguments with required projectId or taskId

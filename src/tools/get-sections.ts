@@ -1,6 +1,7 @@
 import type { TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { validateProject } from '../utils/verification.js'
 
 export function registerGetSections(server: McpServer, api: TodoistApi) {
     server.tool(
@@ -8,8 +9,12 @@ export function registerGetSections(server: McpServer, api: TodoistApi) {
         'Get all sections from a project in Todoist',
         {
             projectId: z.string(),
+            projectName: z.string().describe('Project name for verification'),
         },
-        async ({ projectId }) => {
+        async ({ projectId, projectName }) => {
+            // Validate project before getting sections
+            await validateProject(projectId, projectName, api)
+
             let response = await api.getSections({ projectId })
             const sections = response.results
             while (response.nextCursor) {

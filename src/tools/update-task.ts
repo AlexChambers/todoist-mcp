@@ -1,6 +1,7 @@
 import type { TodoistApi, UpdateTaskArgs } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { validateTask } from '../utils/verification.js'
 
 export function registerUpdateTask(server: McpServer, api: TodoistApi) {
     server.tool(
@@ -8,6 +9,8 @@ export function registerUpdateTask(server: McpServer, api: TodoistApi) {
         'Update a task in Todoist',
         {
             taskId: z.string(),
+            taskName: z.string().describe('Task content/name for verification'),
+            projectName: z.string().describe('Project name for verification'),
             content: z.string().optional(),
             description: z.string().optional(),
             assigneeId: z
@@ -58,6 +61,8 @@ export function registerUpdateTask(server: McpServer, api: TodoistApi) {
         },
         async ({
             taskId,
+            taskName,
+            projectName,
             content,
             description,
             assigneeId,
@@ -81,6 +86,9 @@ export function registerUpdateTask(server: McpServer, api: TodoistApi) {
             if ((duration && !durationUnit) || (!duration && durationUnit)) {
                 throw new Error('Must provide both duration and durationUnit, or neither')
             }
+
+            // Validate task before updating
+            await validateTask(taskId, taskName, projectName, api)
 
             // Create base update args
             const baseArgs = {

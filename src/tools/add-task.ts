@@ -1,6 +1,11 @@
 import type { AddTaskArgs, TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import {
+    validateParentProject,
+    validateParentTask,
+    validateProject,
+} from '../utils/verification.js'
 
 export function registerAddTask(server: McpServer, api: TodoistApi) {
     server.tool(
@@ -10,6 +15,7 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
             content: z.string(),
             description: z.string().optional(),
             projectId: z.string().optional().describe('The ID of a project to add the task to'),
+            projectName: z.string().optional().describe('Project name for verification'),
             assigneeId: z
                 .string()
                 .optional()
@@ -22,6 +28,7 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
                 .describe('Task priority from 1 (normal) to 4 (urgent)'),
             labels: z.array(z.string()).optional(),
             parentId: z.string().optional().describe('The ID of a parent task'),
+            parentTaskName: z.string().optional().describe('Parent task name for verification'),
             dueString: z
                 .string()
                 .optional()
@@ -59,7 +66,9 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
             content,
             description,
             projectId,
+            projectName,
             parentId,
+            parentTaskName,
             assigneeId,
             priority,
             labels,
@@ -80,6 +89,19 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
             // Validate that if duration or durationUnit is provided, both must be provided
             if ((duration && !durationUnit) || (!duration && durationUnit)) {
                 throw new Error('Must provide both duration and durationUnit, or neither')
+            }
+
+            // Validate project if projectId and projectName are provided
+            if (projectId && projectName) {
+                await validateProject(projectId, projectName, api)
+            }
+
+            // Validate parent task if parentId and parentTaskName are provided
+            if (parentId && parentTaskName) {
+                if (!projectName) {
+                    throw new Error('projectName is required when parentTaskName is provided')
+                }
+                await validateParentTask(parentId, parentTaskName, projectName, api)
             }
 
             // Create base task args
