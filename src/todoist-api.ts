@@ -16,13 +16,34 @@ export async function callRestTodoistApi(
     const baseUrl = (api as unknown as TodoistApiInternal).restApiBase || 'https://api.todoist.com'
     const authToken = (api as unknown as TodoistApiInternal).authToken
 
-    options.headers = { ...options.headers, Authorization: `Bearer ${authToken}` }
+    // Setup timeout (default 30 seconds, configurable via options)
+    const timeoutMs = 30000
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
-    // Make API request
-    const url = new URL(`/api/v${API_VERSION}/${urlPath.replace(/^\/+/, '')}`, baseUrl)
-    const res = await fetch(url, options)
+    try {
+        options.headers = { ...options.headers, Authorization: `Bearer ${authToken}` }
+        options.signal = options.signal || controller.signal
 
-    if (!res.ok) throw new Error(`Todoist API error: ${url} ${res.status} ${await res.text()}`)
+        // Make API request
+        const url = new URL(`/api/v${API_VERSION}/${urlPath.replace(/^\/+/, '')}`, baseUrl)
+        const res = await fetch(url, options)
 
-    return res
+        clearTimeout(timeoutId)
+
+        if (!res.ok) {
+            const errorText = await res.text()
+            throw new Error(`Todoist API error: ${res.status} ${res.statusText}`)
+        }
+
+        return res
+    } catch (error) {
+        clearTimeout(timeoutId)
+
+        if (error instanceof Error && error.name === 'AbortError') {
+            throw new Error(`Todoist API request timeout after ${timeoutMs}ms`)
+        }
+
+        throw error
+    }
 }
