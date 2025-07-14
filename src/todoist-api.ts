@@ -1,6 +1,7 @@
 import type { TodoistApi } from '@doist/todoist-api-typescript'
 
-const API_VERSION = '9.215'
+// Make API version configurable via environment variable with fallback
+const API_VERSION = process.env.TODOIST_API_VERSION ?? '9.215'
 
 // Since some endpoints are not directly exposed in the TypeScript client,
 // We need to make a direct fetch request using the authentication token

@@ -91,6 +91,18 @@ Alternatively, for project-level sharing, create a `.mcp.json` file in your proj
 
 You can now use Claude Code and ask to update Todoist.
 
+## ⚙️ Configuration
+
+### Environment Variables
+
+- **`TODOIST_API_KEY`** (required): Your Todoist API token from [Settings > Integrations > Developer](https://app.todoist.com/app/settings/integrations/developer)
+- **`TODOIST_API_VERSION`** (optional): Todoist REST API version to use (default: `9.215`)
+
+Example with custom API version:
+```bash
+claude mcp add todoist-mcp -e TODOIST_API_KEY=your_key -e TODOIST_API_VERSION=9.216 -- node $(pwd)/build/index.js
+```
+
 ## 🛡️ Verification Requirements for Destructive Operations
 
 To prevent AI hallucination errors, destructive operations require additional verification parameters:
