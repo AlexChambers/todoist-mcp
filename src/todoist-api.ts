@@ -4,17 +4,23 @@ const API_VERSION = '9.215'
 
 // Since some endpoints are not directly exposed in the TypeScript client,
 // We need to make a direct fetch request using the authentication token
-// Access the private properties with a type assertion to a more specific interface
-type TodoistApiInternal = { restApiBase: string; authToken: string }
 
 export async function callRestTodoistApi(
     urlPath: string,
     api: TodoistApi,
     options: RequestInit = {},
 ) {
-    // Access the private properties with a type assertion
-    const baseUrl = (api as unknown as TodoistApiInternal).restApiBase || 'https://api.todoist.com'
-    const authToken = (api as unknown as TodoistApiInternal).authToken
+    // Access API properties with fallbacks for robustness
+    const apiInternal = api as any
+    const baseUrl = apiInternal.restApiBase ?? 'https://api.todoist.com'
+    const authToken = apiInternal.authToken
+
+    // Validate that we have required properties
+    if (!authToken) {
+        throw new Error(
+            'Cannot access Todoist API token - ensure TodoistApi is properly initialized',
+        )
+    }
 
     // Setup timeout (default 30 seconds, configurable via options)
     const timeoutMs = 30000
