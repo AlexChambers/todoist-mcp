@@ -1,4 +1,3 @@
-import path from 'node:path'
 import type { TodoistApi } from '@doist/todoist-api-typescript'
 
 const API_VERSION = '9.215'
@@ -20,7 +19,7 @@ export async function callRestTodoistApi(
     options.headers = { ...options.headers, Authorization: `Bearer ${authToken}` }
 
     // Make API request
-    const url = new URL(path.join(baseUrl, 'api', `v${API_VERSION}`, urlPath))
+    const url = new URL(`/api/v${API_VERSION}/${urlPath.replace(/^\/+/, '')}`, baseUrl)
     const res = await fetch(url, options)
 
     if (!res.ok) throw new Error(`Todoist API error: ${url} ${res.status} ${await res.text()}`)
