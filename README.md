@@ -63,8 +63,14 @@ You can get your Todoist API key from [Todoist > Settings > Integrations > Devel
 Then, add the MCP server using the Claude CLI:
 
 ```bash
-# Add the MCP server with environment variable (from the project directory):
+# Local scope (default) - Available only in current project directory:
 claude mcp add todoist-mcp -e TODOIST_API_KEY=your_todoist_api_key -- node $(pwd)/build/index.js
+
+# User scope - Available across all projects on your machine:
+claude mcp add todoist-mcp -s user -e TODOIST_API_KEY=your_todoist_api_key -- node $(pwd)/build/index.js
+
+# Project scope - Shared via .mcp.json for team collaboration:
+claude mcp add todoist-mcp -s project -e TODOIST_API_KEY=your_todoist_api_key -- node $(pwd)/build/index.js
 ```
 
 Alternatively, for project-level sharing, create a `.mcp.json` file in your project root:
