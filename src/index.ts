@@ -1,6 +1,16 @@
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { TodoistApi } from '@doist/todoist-api-typescript'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+
+// Read version from package.json to ensure consistency
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'))
+const { version } = packageJson
+
 import { registerAddComment } from './tools/add-comment.js'
 import { registerAddLabel } from './tools/add-label.js'
 import { registerAddProject } from './tools/add-project.js'
@@ -48,7 +58,7 @@ if (!process.env.TODOIST_API_KEY) {
 const api = new TodoistApi(process.env.TODOIST_API_KEY)
 
 /* Create server instance */
-const server = new McpServer({ name: 'todoist-mcp', version: '1.0.1' })
+const server = new McpServer({ name: 'todoist-mcp', version })
 
 /* Register Todoist tools */
 
