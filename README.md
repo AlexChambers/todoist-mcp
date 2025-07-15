@@ -2,7 +2,11 @@
 
 Connect this [Model Context Protocol](https://modelcontextprotocol.io/introduction) server to your LLM to interact with Todoist.
 
-> **Note:** This is an official fork of the [original Doist repository](https://github.com/Doist/todoist-mcp) with enhanced security features for AI hallucination protection. These security enhancements are maintained on the master branch.
+> **Note:** This is a fork of the [original Doist repository](https://github.com/Doist/todoist-mcp) with enhanced security features for AI hallucination protection. This fork adds verification parameters to prevent accidental data modification through AI hallucination while maintaining full API compatibility.
+
+## 🔗 **Upstream Relationship**
+
+This fork tracks the upstream repository and contributes improvements back where appropriate. The security enhancements are maintained on the main branch with the goal of potentially proposing them upstream.
 
 ## 🛡️ Security Features
 
