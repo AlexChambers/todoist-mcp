@@ -29,12 +29,16 @@ export async function callRestTodoistApi(
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
     try {
-        options.headers = { ...options.headers, Authorization: `Bearer ${authToken}` }
-        options.signal = options.signal || controller.signal
+        // Create new options object to avoid mutating the passed-in one
+        const requestOptions: RequestInit = {
+            ...options,
+            headers: { ...options.headers, Authorization: `Bearer ${authToken}` },
+            signal: options.signal || controller.signal,
+        }
 
         // Make API request
         const url = new URL(`/api/v${API_VERSION}/${urlPath.replace(/^\/+/, '')}`, baseUrl)
-        const res = await fetch(url, options)
+        const res = await fetch(url, requestOptions)
 
         clearTimeout(timeoutId)
 
