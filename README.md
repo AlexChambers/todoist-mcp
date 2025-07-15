@@ -18,6 +18,23 @@ This MCP server implements **AI Hallucination Protection** through redundant ver
 - ✅ **Transparent Operations**: See exactly what will be modified before it happens
 - ✅ **No Bypass Mechanisms**: Impossible to skip verification requirements
 
+### 🔍 **Before vs After: Enhanced Tool Call Visibility**
+
+This fork adds human-readable verification parameters to tool calls, making it immediately clear what operations are being performed:
+
+| **Operation** | **Original Fork** | **This Fork (Security-Enhanced)** |
+|---------------|-------------------|-----------------------------------|
+| Get Project | `todoist-mcp - get-project (MCP)(projectId: "2331449668")` | `todoist-mcp - get-project (MCP)(projectId: "2331449668", projectName: "Inbox")` |
+| Get Tasks | `todoist-mcp - get-tasks (MCP)(projectId: "2331449668")` | `todoist-mcp - get-tasks (MCP)(projectId: "2331449668", projectName: "Inbox")` |
+| Delete Task | `todoist-mcp - delete-task (MCP)(taskId: "8036534251")` | `todoist-mcp - delete-task (MCP)(taskId: "8036534251", taskName: "Buy groceries", projectName: "Personal")` |
+| Close Task | `todoist-mcp - close-task (MCP)(taskId: "8036534251")` | `todoist-mcp - close-task (MCP)(taskId: "8036534251", taskName: "Submit report", projectName: "Work")` |
+| Update Task | `todoist-mcp - update-task (MCP)(taskId: "8036534251")` | `todoist-mcp - update-task (MCP)(taskId: "8036534251", taskName: "Review document", projectName: "Work")` |
+| Move Tasks | `todoist-mcp - move-tasks (MCP)(taskVerifications: [...])` | `todoist-mcp - move-tasks (MCP)(taskVerifications: [{"taskName": "Call client", "currentProjectName": "Inbox"}])` |
+| Delete Project | `todoist-mcp - delete-project (MCP)(projectId: "2331449668")` | `todoist-mcp - delete-project (MCP)(projectId: "2331449668", projectName: "Old Project")` |
+| Update Comment | `todoist-mcp - update-comment (MCP)(commentId: "1234567890")` | `todoist-mcp - update-comment (MCP)(commentId: "1234567890", currentCommentContent: "This needs revision", projectName: "Work")` |
+
+**Result**: You can immediately see what's being modified without having to decode opaque IDs, dramatically reducing the risk of accidental operations due to AI hallucination.
+
 ## Functionality
 
 This integration implements all the APIs available from the [Todoist TypeScript Client](https://doist.github.io/todoist-api-typescript/api/classes/TodoistApi/), providing access to:
