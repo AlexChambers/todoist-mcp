@@ -42,8 +42,10 @@ export function registerQuickAddTask(server: McpServer, api: TodoistApi) {
             if (projectName) {
                 const project = await api.getProject(task.projectId)
                 if (project.name !== projectName) {
+                    // Clean up the incorrectly created task
+                    await api.deleteTask(task.id)
                     throw new Error(
-                        `Task was created in project "${project.name}" but expected "${projectName}"`,
+                        `Task was created in project "${project.name}" but expected "${projectName}". The incorrect task has been deleted.`,
                     )
                 }
             }

@@ -30,12 +30,22 @@ export function registerAddComment(server: McpServer, api: TodoistApi) {
             }
 
             // Validate task if taskId is provided
-            if (taskId && taskName && projectName) {
+            if (taskId) {
+                if (!taskName || !projectName) {
+                    throw new Error(
+                        'When providing a taskId, you must also provide taskName and projectName for verification',
+                    )
+                }
                 await validateTask(taskId, taskName, projectName, api)
             }
 
             // Validate project if projectId is provided
-            if (projectId && projectName) {
+            if (projectId) {
+                if (!projectName) {
+                    throw new Error(
+                        'When providing a projectId, you must also provide projectName for verification',
+                    )
+                }
                 await validateProject(projectId, projectName, api)
             }
 

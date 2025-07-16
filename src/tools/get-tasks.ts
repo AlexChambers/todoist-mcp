@@ -8,14 +8,12 @@ export function registerGetTasks(server: McpServer, api: TodoistApi) {
         'get-tasks',
         'Get all tasks from Todoist',
         {
-            projectId: z.string().optional(),
-            projectName: z.string().optional().describe('Project name for verification'),
+            projectId: z.string(),
+            projectName: z.string().describe('Project name for verification'),
         },
         async ({ projectId, projectName }) => {
-            // Validate project if projectId and projectName are provided
-            if (projectId && projectName) {
-                await validateProject(projectId, projectName, api)
-            }
+            // Always validate project since parameters are now required
+            await validateProject(projectId, projectName, api)
 
             let response = await api.getTasks({ projectId })
             const tasks = response.results

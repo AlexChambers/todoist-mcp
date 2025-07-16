@@ -47,11 +47,15 @@ export async function validateTask(
     const project = await api.getProject(task.projectId)
 
     if (expectedTaskName !== task.content) {
-        throw new Error('Task name mismatch: expected value did not match actual value')
+        throw new Error(
+            `Task name mismatch. Expected: "${expectedTaskName}", Actual: "${task.content}"`,
+        )
     }
 
     if (expectedProjectName !== project.name) {
-        throw new Error('Project name mismatch: expected value did not match actual value')
+        throw new Error(
+            `Project name mismatch. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
+        )
     }
 
     return { task, project }
@@ -68,7 +72,9 @@ export async function validateProject(
     const project = await api.getProject(projectId)
 
     if (expectedProjectName !== project.name) {
-        throw new Error('Project name mismatch: expected value did not match actual value')
+        throw new Error(
+            `Project name mismatch. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
+        )
     }
 
     return { project }
@@ -87,11 +93,15 @@ export async function validateSection(
     const project = await api.getProject(section.projectId)
 
     if (expectedSectionName !== section.name) {
-        throw new Error('Section name mismatch: expected value did not match actual value')
+        throw new Error(
+            `Section name mismatch. Expected: "${expectedSectionName}", Actual: "${section.name}"`,
+        )
     }
 
     if (expectedProjectName !== project.name) {
-        throw new Error('Project name mismatch: expected value did not match actual value')
+        throw new Error(
+            `Project name mismatch. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
+        )
     }
 
     return { section, project }
@@ -112,7 +122,9 @@ export async function validateComment(
     // Validate comment content (first 50 characters)
     const commentPreview = comment.content.substring(0, 50)
     if (expectedCommentContent !== commentPreview) {
-        throw new Error('Comment content mismatch: expected value did not match actual value')
+        throw new Error(
+            `Comment content mismatch. Expected: "${expectedCommentContent}", Actual: "${commentPreview}"`,
+        )
     }
 
     // Comments can be on tasks or projects
@@ -123,13 +135,13 @@ export async function validateComment(
 
         if (expectedTaskName !== task.content) {
             throw new Error(
-                'Task name mismatch for comment: expected value did not match actual value',
+                `Task name mismatch for comment. Expected: "${expectedTaskName}", Actual: "${task.content}"`,
             )
         }
 
         if (expectedProjectName !== project.name) {
             throw new Error(
-                'Project name mismatch for comment: expected value did not match actual value',
+                `Project name mismatch for comment. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
             )
         }
 
@@ -140,7 +152,7 @@ export async function validateComment(
 
         if (expectedProjectName !== project.name) {
             throw new Error(
-                'Project name mismatch for comment: expected value did not match actual value',
+                `Project name mismatch for comment. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
             )
         }
 
@@ -163,7 +175,9 @@ export async function validateLabel(
     const label = await api.getLabel(labelId)
 
     if (expectedLabelName !== label.name) {
-        throw new Error('Label name mismatch: expected value did not match actual value')
+        throw new Error(
+            `Label name mismatch. Expected: "${expectedLabelName}", Actual: "${label.name}"`,
+        )
     }
 
     return { label }
@@ -182,12 +196,14 @@ export async function validateParentTask(
     const project = await api.getProject(parentTask.projectId)
 
     if (expectedParentTaskName !== parentTask.content) {
-        throw new Error('Parent task name mismatch: expected value did not match actual value')
+        throw new Error(
+            `Parent task name mismatch. Expected: "${expectedParentTaskName}", Actual: "${parentTask.content}"`,
+        )
     }
 
     if (expectedProjectName !== project.name) {
         throw new Error(
-            'Project name mismatch for parent task: expected value did not match actual value',
+            `Project name mismatch for parent task. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
         )
     }
 
@@ -205,7 +221,9 @@ export async function validateParentProject(
     const parentProject = await api.getProject(parentProjectId)
 
     if (expectedParentProjectName !== parentProject.name) {
-        throw new Error('Parent project name mismatch: expected value did not match actual value')
+        throw new Error(
+            `Parent project name mismatch. Expected: "${expectedParentProjectName}", Actual: "${parentProject.name}"`,
+        )
     }
 
     return { project: parentProject }
