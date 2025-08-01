@@ -1,6 +1,7 @@
 import type { TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { getMaxPaginatedResults } from '../utils/get-max-paginated-results.js'
 import { validateProject } from '../utils/verification.js'
 
 export function registerGetTasks(server: McpServer, api: TodoistApi) {
@@ -15,12 +16,9 @@ export function registerGetTasks(server: McpServer, api: TodoistApi) {
             // Always validate project since parameters are now required
             await validateProject(projectId, projectName, api)
 
-            let response = await api.getTasks({ projectId })
-            const tasks = response.results
-            while (response.nextCursor) {
-                response = await api.getTasks({ projectId, cursor: response.nextCursor })
-                tasks.push(...response.results)
-            }
+            const tasks = await getMaxPaginatedResults((params) =>
+                api.getTasks({ projectId, ...params }),
+            )
             return {
                 content: tasks.map((task) => ({
                     type: 'text',

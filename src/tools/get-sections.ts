@@ -1,6 +1,7 @@
 import type { TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { getMaxPaginatedResults } from '../utils/get-max-paginated-results.js'
 import { validateProject } from '../utils/verification.js'
 
 export function registerGetSections(server: McpServer, api: TodoistApi) {
@@ -15,12 +16,9 @@ export function registerGetSections(server: McpServer, api: TodoistApi) {
             // Validate project before getting sections
             await validateProject(projectId, projectName, api)
 
-            let response = await api.getSections({ projectId })
-            const sections = response.results
-            while (response.nextCursor) {
-                response = await api.getSections({ projectId, cursor: response.nextCursor })
-                sections.push(...response.results)
-            }
+            const sections = await getMaxPaginatedResults((params) =>
+                api.getSections({ projectId, ...params }),
+            )
             return {
                 content: sections.map((section) => ({
                     type: 'text',
