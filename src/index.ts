@@ -22,6 +22,7 @@ import { registerDeleteLabel } from './tools/delete-label.js'
 import { registerDeleteProject } from './tools/delete-project.js'
 import { registerDeleteSection } from './tools/delete-section.js'
 import { registerDeleteTask } from './tools/delete-task.js'
+import { registerDeleteTasksBulk } from './tools/delete-tasks-bulk.js'
 import { registerGetComment } from './tools/get-comment.js'
 import { registerGetComments } from './tools/get-comments.js'
 import { registerGetLabel } from './tools/get-label.js'
@@ -84,6 +85,7 @@ registerUpdateTask(server, api)
 registerCloseTask(server, api)
 registerMoveTasks(server, api)
 registerDeleteTask(server, api)
+registerDeleteTasksBulk(server, api)
 registerReopenTask(server, api)
 registerGetTasksByFilter(server, api)
 
