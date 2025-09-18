@@ -1,5 +1,8 @@
 # Todoist MCP (Security-Enhanced Fork)
 
+> [!NOTE]
+> **Upstream Notice**: Doist has announced a transition to a new repository [Doist/todoist-ai](https://github.com/Doist/todoist-ai). This security-enhanced fork continues to track the original [Doist/todoist-mcp](https://github.com/Doist/todoist-mcp) with added verification features for AI hallucination protection. See [discussion](https://github.com/Doist/todoist-mcp/discussions/103) for details about the upstream transition.
+
 Connect this [Model Context Protocol](https://modelcontextprotocol.io/introduction) server to your LLM to interact with Todoist.
 
 > **Note:** This is a fork of the [original Doist repository](https://github.com/Doist/todoist-mcp) with enhanced security features for AI hallucination protection. This fork adds verification parameters to prevent accidental data modification through AI hallucination while maintaining full API compatibility.
