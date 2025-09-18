@@ -4,6 +4,20 @@ import { z } from 'zod'
 import { getMaxPaginatedResults } from '../utils/get-max-paginated-results.js'
 import { validateProject } from '../utils/verification.js'
 
+function filterTaskFields(task: any, fields?: string[]): any {
+    if (!fields || fields.length === 0) {
+        return task
+    }
+
+    const filtered: any = {}
+    for (const field of fields) {
+        if (field in task) {
+            filtered[field] = task[field]
+        }
+    }
+    return filtered
+}
+
 export function registerGetTasks(server: McpServer, api: TodoistApi) {
     server.tool(
         'get-tasks',
@@ -18,8 +32,14 @@ export function registerGetTasks(server: McpServer, api: TodoistApi) {
                 .max(200)
                 .optional()
                 .describe('Number of tasks per page (1-200, optional)'),
+            fields: z
+                .array(z.string())
+                .optional()
+                .describe(
+                    'Fields to include in response (e.g., ["id", "content", "due", "priority"]). If not specified, all fields are returned.',
+                ),
         },
-        async ({ projectId, projectName, page, tasksPerPage }) => {
+        async ({ projectId, projectName, page, tasksPerPage, fields }) => {
             // Always validate project since parameters are now required
             await validateProject(projectId, projectName, api)
 
@@ -48,8 +68,11 @@ export function registerGetTasks(server: McpServer, api: TodoistApi) {
                 )
             }
 
+            // Apply field filtering if specified
+            const filteredTasks = tasks.map((task) => filterTaskFields(task, fields))
+
             return {
-                content: tasks.map((task) => ({
+                content: filteredTasks.map((task) => ({
                     type: 'text' as const,
                     text: JSON.stringify(task, null, 2),
                 })),
