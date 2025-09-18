@@ -13,7 +13,7 @@ Connect this [Model Context Protocol](https://modelcontextprotocol.io/introducti
 
 | Aspect | **This Fork (todoist-mcp)** | **todoist-ai** |
 |--------|------------------------------|----------------|
-| **Tool Coverage** | ✅ 40+ tools - Complete API coverage | ⚠️ ~20 tools - Limited, expanding |
+| **Tool Coverage** | ✅ 40 tools - Complete API coverage | ⚠️ 21 tools - Core features, expanding |
 | **Security** | ✅ Verification parameters prevent AI hallucination | ❌ No verification system |
 | **Architecture** | Pure MCP server | Dual: Direct import + MCP |
 | **Bulk Operations** | ✅ Move multiple tasks, bulk delete | ❌ Not available |
@@ -178,7 +178,7 @@ Claude will automatically prompt for these verification parameters:
 - Project name: 'Personal'"
 ```
 
-## 🔄 Breaking Changes in v2.0
+## 🔄 Breaking Changes in v1.0+
 
 **Important:** This version introduces breaking changes for destructive operations. Previous integrations using these tools will need to provide the additional verification parameters.
 
