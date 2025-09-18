@@ -7,6 +7,28 @@ Connect this [Model Context Protocol](https://modelcontextprotocol.io/introducti
 
 > **Note:** This is a fork of the [original Doist repository](https://github.com/Doist/todoist-mcp) with enhanced security features for AI hallucination protection. This fork adds verification parameters to prevent accidental data modification through AI hallucination while maintaining full API compatibility.
 
+## 🚀 **Why Use This Fork?**
+
+### Comparison with Doist/todoist-ai (New Official Repository)
+
+| Aspect | **This Fork (todoist-mcp)** | **todoist-ai** |
+|--------|------------------------------|----------------|
+| **Tool Coverage** | ✅ 40+ tools - Complete API coverage | ⚠️ ~20 tools - Limited, expanding |
+| **Security** | ✅ Verification parameters prevent AI hallucination | ❌ No verification system |
+| **Architecture** | Pure MCP server | Dual: Direct import + MCP |
+| **Bulk Operations** | ✅ Move multiple tasks, bulk delete | ❌ Not available |
+| **Label Management** | ✅ Full support including shared labels | ❌ Not available |
+| **Productivity Features** | ✅ Stats, completed tasks tracking | ❌ Limited |
+| **Maturity** | Stable, production-ready | Early stage |
+
+### Key Advantages of This Fork
+
+1. **🛡️ AI Hallucination Protection**: Every destructive operation requires human-readable verification (task/project names), preventing accidental data loss from AI confusing IDs
+2. **📦 Complete Feature Set**: All Todoist API endpoints implemented - labels, sections, comments, collaborators, productivity stats
+3. **⚡ Bulk Operations**: Efficiently move or delete multiple tasks at once
+4. **📊 Advanced Features**: Productivity statistics, completed tasks by date range, shared labels
+5. **🔄 Proven Stability**: Battle-tested with comprehensive error handling
+
 ## 🔗 **Upstream Relationship**
 
 This fork tracks the upstream repository and contributes improvements back where appropriate. The security enhancements are maintained on the main branch with the goal of potentially proposing them upstream.
