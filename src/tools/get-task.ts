@@ -1,6 +1,7 @@
 import type { TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { transformTaskPriority } from '../utils/priority.js'
 import { validateTask } from '../utils/verification.js'
 
 export function registerGetTask(server: McpServer, api: TodoistApi) {
@@ -17,7 +18,8 @@ export function registerGetTask(server: McpServer, api: TodoistApi) {
             await validateTask(taskId, taskName, projectName, api)
 
             const task = await api.getTask(taskId)
-            return { content: [{ type: 'text', text: JSON.stringify(task, null, 2) }] }
+            const transformedTask = transformTaskPriority(task)
+            return { content: [{ type: 'text', text: JSON.stringify(transformedTask, null, 2) }] }
         },
     )
 }

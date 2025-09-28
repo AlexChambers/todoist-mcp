@@ -1,6 +1,7 @@
 import type { QuickAddTaskArgs, TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { transformTaskPriority } from '../utils/priority.js'
 
 export function registerQuickAddTask(server: McpServer, api: TodoistApi) {
     server.tool(
@@ -50,8 +51,9 @@ export function registerQuickAddTask(server: McpServer, api: TodoistApi) {
                 }
             }
 
+            const transformedTask = transformTaskPriority(task)
             return {
-                content: [{ type: 'text', text: JSON.stringify(task, null, 2) }],
+                content: [{ type: 'text', text: JSON.stringify(transformedTask, null, 2) }],
             }
         },
     )

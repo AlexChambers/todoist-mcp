@@ -1,6 +1,7 @@
 import type { AddTaskArgs, TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { getPriorityDescription, transformTaskPriority } from '../utils/priority.js'
 import {
     validateParentProject,
     validateParentTask,
@@ -20,12 +21,7 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
                 .string()
                 .optional()
                 .describe('The ID of a project collaborator to assign the task to'),
-            priority: z
-                .number()
-                .min(1)
-                .max(4)
-                .optional()
-                .describe('Task priority from 1 (normal) to 4 (urgent)'),
+            priority: z.number().min(1).max(4).optional().describe(getPriorityDescription()),
             labels: z.array(z.string()).optional(),
             parentId: z.string().optional().describe('The ID of a parent task'),
             parentTaskName: z.string().optional().describe('Parent task name for verification'),
@@ -135,12 +131,13 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
             }
 
             const task = await api.addTask(taskArgs as AddTaskArgs)
+            const transformedTask = transformTaskPriority(task)
 
             return {
                 content: [
                     {
                         type: 'text',
-                        text: JSON.stringify(task, null, 2),
+                        text: JSON.stringify(transformedTask, null, 2),
                     },
                 ],
             }

@@ -2,6 +2,7 @@ import type { TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { getMaxPaginatedResults } from '../utils/get-max-paginated-results.js'
+import { transformTaskPriority } from '../utils/priority.js'
 import { validateProject } from '../utils/verification.js'
 
 function filterTaskFields(task: any, fields?: string[]): any {
@@ -71,8 +72,11 @@ export function registerGetTasks(server: McpServer, api: TodoistApi) {
             // Apply field filtering if specified
             const filteredTasks = tasks.map((task) => filterTaskFields(task, fields))
 
+            // Transform priorities to text
+            const transformedTasks = filteredTasks.map((task) => transformTaskPriority(task))
+
             return {
-                content: filteredTasks.map((task) => ({
+                content: transformedTasks.map((task) => ({
                     type: 'text' as const,
                     text: JSON.stringify(task, null, 2),
                 })),
