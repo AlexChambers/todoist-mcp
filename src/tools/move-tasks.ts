@@ -114,7 +114,7 @@ export function registerMoveTasks(server: McpServer, api: TodoistApi) {
 
             // Move the tasks
             const taskIds = taskVerifications.map((tv) => tv.taskId)
-            const movedTasks = await api.moveTasks(taskIds, moveArgs)
+            const _movedTasks = await api.moveTasks(taskIds, moveArgs)
 
             // Create human-readable response
             const taskNames = validatedTasks.map((vt) => `"${vt.task.content}"`).join(', ')

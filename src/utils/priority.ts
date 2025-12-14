@@ -56,6 +56,7 @@ export function transformTaskPriority<T extends { priority?: number }>(task: T):
     // Create new object with priority as text
     const transformed = { ...task }
     if (priorityText !== undefined) {
+        // biome-ignore lint/suspicious/noExplicitAny: Need to override priority type from number to text
         ;(transformed as any).priority = priorityText
     }
 

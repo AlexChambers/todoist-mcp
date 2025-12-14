@@ -7,7 +7,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 // Create a unified type for our get-comments tool that allows either taskId or projectId
-type UnifiedGetCommentsArgs = {
+type _UnifiedGetCommentsArgs = {
     taskId?: string
     projectId?: string
     cursor?: string | null

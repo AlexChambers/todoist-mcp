@@ -12,6 +12,7 @@ export async function callRestTodoistApi(
     options: RequestInit = {},
 ) {
     // Access API properties with fallbacks for robustness
+    // biome-ignore lint/suspicious/noExplicitAny: Need to access private properties of TodoistApi
     const apiInternal = api as any
     const baseUrl = apiInternal.restApiBase ?? 'https://api.todoist.com'
     const authToken = apiInternal.authToken
@@ -43,7 +44,7 @@ export async function callRestTodoistApi(
         clearTimeout(timeoutId)
 
         if (!res.ok) {
-            const errorText = await res.text()
+            const _errorText = await res.text()
             throw new Error(`Todoist API error: ${res.status} ${res.statusText}`)
         }
 

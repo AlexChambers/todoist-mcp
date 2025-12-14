@@ -53,7 +53,7 @@ export function registerDeleteTasksBulk(server: McpServer, api: TodoistApi) {
 
             const totalRequested = taskVerifications.length
             const successCount = results.length
-            const errorCount = errors.length
+            const _errorCount = errors.length
 
             const summary = [
                 `Bulk delete completed: ${successCount}/${totalRequested} tasks deleted successfully`,

@@ -27,7 +27,7 @@ export function registerUpdateComment(server: McpServer, api: TodoistApi) {
             )
 
             const updateArgs: UpdateCommentArgs = { content: newContent }
-            const updatedComment = await api.updateComment(commentId, updateArgs)
+            const _updatedComment = await api.updateComment(commentId, updateArgs)
 
             const contextDescription = task
                 ? `on task "${task.content}" in project "${project.name}"`

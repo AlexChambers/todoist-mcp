@@ -22,7 +22,7 @@ export function registerUpdateSection(server: McpServer, api: TodoistApi) {
                 api,
             )
 
-            const updatedSection = await api.updateSection(sectionId, { name: newName })
+            const _updatedSection = await api.updateSection(sectionId, { name: newName })
             return {
                 content: [
                     {
