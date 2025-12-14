@@ -10,6 +10,24 @@ import type {
 
 type Project = PersonalProject | WorkspaceProject
 
+/**
+ * Normalizes a string for comparison by converting smart quotes and other
+ * Unicode variants to their ASCII equivalents. This handles cases where
+ * MCP transport or user input differs from what's stored in Todoist.
+ */
+function normalizeForComparison(str: string): string {
+    return (
+        str
+            // Smart single quotes to straight apostrophe
+            .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+            // Smart double quotes to straight quotes
+            .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
+            // Other common substitutions
+            .replace(/\u2026/g, '...') // Ellipsis
+            .replace(/[\u2013\u2014]/g, '-')
+    ) // En/em dashes
+}
+
 export interface TaskValidationResult {
     task: Task
     project: Project
@@ -46,13 +64,13 @@ export async function validateTask(
     const task = await api.getTask(taskId)
     const project = await api.getProject(task.projectId)
 
-    if (expectedTaskName !== task.content) {
+    if (normalizeForComparison(expectedTaskName) !== normalizeForComparison(task.content)) {
         throw new Error(
             `Task name mismatch. Expected: "${expectedTaskName}", Actual: "${task.content}"`,
         )
     }
 
-    if (expectedProjectName !== project.name) {
+    if (normalizeForComparison(expectedProjectName) !== normalizeForComparison(project.name)) {
         throw new Error(
             `Project name mismatch. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
         )
@@ -71,7 +89,7 @@ export async function validateProject(
 ): Promise<ProjectValidationResult> {
     const project = await api.getProject(projectId)
 
-    if (expectedProjectName !== project.name) {
+    if (normalizeForComparison(expectedProjectName) !== normalizeForComparison(project.name)) {
         throw new Error(
             `Project name mismatch. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
         )
@@ -92,13 +110,13 @@ export async function validateSection(
     const section = await api.getSection(sectionId)
     const project = await api.getProject(section.projectId)
 
-    if (expectedSectionName !== section.name) {
+    if (normalizeForComparison(expectedSectionName) !== normalizeForComparison(section.name)) {
         throw new Error(
             `Section name mismatch. Expected: "${expectedSectionName}", Actual: "${section.name}"`,
         )
     }
 
-    if (expectedProjectName !== project.name) {
+    if (normalizeForComparison(expectedProjectName) !== normalizeForComparison(project.name)) {
         throw new Error(
             `Project name mismatch. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
         )
@@ -121,7 +139,7 @@ export async function validateComment(
 
     // Validate comment content (first 50 characters)
     const commentPreview = comment.content.substring(0, 50)
-    if (expectedCommentContent !== commentPreview) {
+    if (normalizeForComparison(expectedCommentContent) !== normalizeForComparison(commentPreview)) {
         throw new Error(
             `Comment content mismatch. Expected: "${expectedCommentContent}", Actual: "${commentPreview}"`,
         )
@@ -133,13 +151,13 @@ export async function validateComment(
         const task = await api.getTask(comment.taskId)
         const project = await api.getProject(task.projectId)
 
-        if (expectedTaskName !== task.content) {
+        if (normalizeForComparison(expectedTaskName) !== normalizeForComparison(task.content)) {
             throw new Error(
                 `Task name mismatch for comment. Expected: "${expectedTaskName}", Actual: "${task.content}"`,
             )
         }
 
-        if (expectedProjectName !== project.name) {
+        if (normalizeForComparison(expectedProjectName) !== normalizeForComparison(project.name)) {
             throw new Error(
                 `Project name mismatch for comment. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
             )
@@ -150,7 +168,7 @@ export async function validateComment(
         // Comment is on a project
         const project = await api.getProject(comment.projectId)
 
-        if (expectedProjectName !== project.name) {
+        if (normalizeForComparison(expectedProjectName) !== normalizeForComparison(project.name)) {
             throw new Error(
                 `Project name mismatch for comment. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
             )
@@ -174,7 +192,7 @@ export async function validateLabel(
 ): Promise<LabelValidationResult> {
     const label = await api.getLabel(labelId)
 
-    if (expectedLabelName !== label.name) {
+    if (normalizeForComparison(expectedLabelName) !== normalizeForComparison(label.name)) {
         throw new Error(
             `Label name mismatch. Expected: "${expectedLabelName}", Actual: "${label.name}"`,
         )
@@ -195,13 +213,16 @@ export async function validateParentTask(
     const parentTask = await api.getTask(parentTaskId)
     const project = await api.getProject(parentTask.projectId)
 
-    if (expectedParentTaskName !== parentTask.content) {
+    if (
+        normalizeForComparison(expectedParentTaskName) !==
+        normalizeForComparison(parentTask.content)
+    ) {
         throw new Error(
             `Parent task name mismatch. Expected: "${expectedParentTaskName}", Actual: "${parentTask.content}"`,
         )
     }
 
-    if (expectedProjectName !== project.name) {
+    if (normalizeForComparison(expectedProjectName) !== normalizeForComparison(project.name)) {
         throw new Error(
             `Project name mismatch for parent task. Expected: "${expectedProjectName}", Actual: "${project.name}"`,
         )
@@ -220,7 +241,10 @@ export async function validateParentProject(
 ): Promise<ProjectValidationResult> {
     const parentProject = await api.getProject(parentProjectId)
 
-    if (expectedParentProjectName !== parentProject.name) {
+    if (
+        normalizeForComparison(expectedParentProjectName) !==
+        normalizeForComparison(parentProject.name)
+    ) {
         throw new Error(
             `Parent project name mismatch. Expected: "${expectedParentProjectName}", Actual: "${parentProject.name}"`,
         )
