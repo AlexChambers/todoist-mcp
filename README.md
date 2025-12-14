@@ -42,6 +42,7 @@ This MCP server implements **AI Hallucination Protection** through redundant ver
 - ✅ **Fail-Safe Design**: Operations fail if verification doesn't match actual content
 - ✅ **Transparent Operations**: See exactly what will be modified before it happens
 - ✅ **No Bypass Mechanisms**: Impossible to skip verification requirements
+- ✅ **Unicode Normalization**: Smart quotes and special characters are normalized for reliable matching
 
 ### 🔍 **Before vs After: Enhanced Tool Call Visibility**
 
@@ -187,6 +188,19 @@ Claude will automatically prompt for these verification parameters:
 - The AI assistant will prompt for missing verification information
 - All verification uses exact string matching (case-sensitive)
 - Operations will fail safely if verification doesn't match actual content
+
+### Unicode Normalization
+
+The verification system automatically normalizes special characters to handle differences between what's stored in Todoist and what's transmitted through the MCP protocol:
+
+| Character Type | Examples | Normalized To |
+|---------------|----------|---------------|
+| Smart single quotes | `'` `'` `‚` `‛` | `'` (straight apostrophe) |
+| Smart double quotes | `"` `"` `„` `‟` | `"` (straight quote) |
+| Ellipsis | `…` | `...` (three periods) |
+| En/em dashes | `–` `—` | `-` (hyphen) |
+
+This ensures verification works correctly even when tasks are created on mobile devices or with "smart" keyboard settings.
 
 ## Distribution
 
