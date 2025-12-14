@@ -4,6 +4,31 @@ import { z } from 'zod'
 import { getMaxPaginatedResults } from '../utils/get-max-paginated-results.js'
 import { transformTasksPriorities } from '../utils/priority.js'
 
+const DEFAULT_TASK_FIELDS = [
+    'id',
+    'content',
+    'description',
+    'due',
+    'priority',
+    'labels',
+    'projectId',
+    'sectionId',
+    'parentId',
+]
+
+function filterTaskFields(
+    task: Record<string, unknown>,
+    fields: string[],
+): Record<string, unknown> {
+    const filtered: Record<string, unknown> = {}
+    for (const field of fields) {
+        if (field in task) {
+            filtered[field] = task[field]
+        }
+    }
+    return filtered
+}
+
 const description =
     'Get all tasks from Todoist using a filter.\n\n' +
     'Filters are custom views for your tasks based on specific criteria. You can narrow down your lists according to task name, date, project, label, priority, date created, and more.\n\n' +
@@ -20,9 +45,12 @@ export function registerGetTasksByFilter(server: McpServer, api: TodoistApi) {
         const tasks = await getMaxPaginatedResults((params) =>
             api.getTasksByFilter({ query: filter, ...params }),
         )
-        const transformedTasks = transformTasksPriorities(tasks as any[])
+        const transformedTasks = transformTasksPriorities(tasks as { priority?: number }[])
+        const filteredTasks = transformedTasks.map((task) =>
+            filterTaskFields(task as Record<string, unknown>, DEFAULT_TASK_FIELDS),
+        )
         return {
-            content: transformedTasks.map((task) => ({
+            content: filteredTasks.map((task) => ({
                 type: 'text',
                 text: JSON.stringify(task, null, 2),
             })),

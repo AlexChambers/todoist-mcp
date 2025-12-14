@@ -5,12 +5,23 @@ import { getMaxPaginatedResults } from '../utils/get-max-paginated-results.js'
 import { transformTaskPriority } from '../utils/priority.js'
 import { validateProject } from '../utils/verification.js'
 
-function filterTaskFields(task: any, fields?: string[]): any {
-    if (!fields || fields.length === 0) {
-        return task
-    }
+const DEFAULT_TASK_FIELDS = [
+    'id',
+    'content',
+    'description',
+    'due',
+    'priority',
+    'labels',
+    'projectId',
+    'sectionId',
+    'parentId',
+]
 
-    const filtered: any = {}
+function filterTaskFields(
+    task: Record<string, unknown>,
+    fields: string[],
+): Record<string, unknown> {
+    const filtered: Record<string, unknown> = {}
     for (const field of fields) {
         if (field in task) {
             filtered[field] = task[field]
@@ -33,14 +44,8 @@ export function registerGetTasks(server: McpServer, api: TodoistApi) {
                 .max(200)
                 .optional()
                 .describe('Number of tasks per page (1-200, optional)'),
-            fields: z
-                .array(z.string())
-                .optional()
-                .describe(
-                    'Fields to include in response (e.g., ["id", "content", "due", "priority"]). If not specified, all fields are returned.',
-                ),
         },
-        async ({ projectId, projectName, page, tasksPerPage, fields }) => {
+        async ({ projectId, projectName, page, tasksPerPage }) => {
             // Always validate project since parameters are now required
             await validateProject(projectId, projectName, api)
 
@@ -69,14 +74,18 @@ export function registerGetTasks(server: McpServer, api: TodoistApi) {
                 )
             }
 
-            // Apply field filtering if specified
-            const filteredTasks = tasks.map((task) => filterTaskFields(task, fields))
-
             // Transform priorities to text
-            const transformedTasks = filteredTasks.map((task) => transformTaskPriority(task))
+            const transformedTasks = tasks.map((task) =>
+                transformTaskPriority(task as Record<string, unknown>),
+            )
+
+            // Apply field filtering
+            const filteredTasks = transformedTasks.map((task) =>
+                filterTaskFields(task, DEFAULT_TASK_FIELDS),
+            )
 
             return {
-                content: transformedTasks.map((task) => ({
+                content: filteredTasks.map((task) => ({
                     type: 'text' as const,
                     text: JSON.stringify(task, null, 2),
                 })),

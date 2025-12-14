@@ -1,12 +1,33 @@
 import type { AddTaskArgs, TodoistApi } from '@doist/todoist-api-typescript'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { getPriorityDescription, transformTaskPriority } from '../utils/priority.js'
-import {
-    validateParentProject,
-    validateParentTask,
-    validateProject,
-} from '../utils/verification.js'
+import { textToPriority, transformTaskPriority } from '../utils/priority.js'
+import { validateParentTask, validateProject } from '../utils/verification.js'
+
+const DEFAULT_TASK_FIELDS = [
+    'id',
+    'content',
+    'description',
+    'due',
+    'priority',
+    'labels',
+    'projectId',
+    'sectionId',
+    'parentId',
+]
+
+function filterTaskFields(
+    task: Record<string, unknown>,
+    fields: string[],
+): Record<string, unknown> {
+    const filtered: Record<string, unknown> = {}
+    for (const field of fields) {
+        if (field in task) {
+            filtered[field] = task[field]
+        }
+    }
+    return filtered
+}
 
 export function registerAddTask(server: McpServer, api: TodoistApi) {
     server.tool(
@@ -21,7 +42,13 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
                 .string()
                 .optional()
                 .describe('The ID of a project collaborator to assign the task to'),
-            priority: z.number().min(1).max(4).optional().describe(getPriorityDescription()),
+            priority: z
+                .union([
+                    z.number().min(1).max(4),
+                    z.enum(['Urgent', 'High', 'Medium', 'Low', 'urgent', 'high', 'medium', 'low']),
+                ])
+                .optional()
+                .describe('Task priority: 1-4 or Urgent/High/Medium/Low'),
             labels: z.array(z.string()).optional(),
             parentId: z.string().optional().describe('The ID of a parent task'),
             parentTaskName: z.string().optional().describe('Parent task name for verification'),
@@ -100,6 +127,10 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
                 await validateParentTask(parentId, parentTaskName, projectName, api)
             }
 
+            // Convert text priority to number if needed
+            const numericPriority =
+                typeof priority === 'string' ? textToPriority(priority) : priority
+
             // Create base task args
             const baseArgs = {
                 content,
@@ -107,7 +138,7 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
                 projectId,
                 parentId,
                 assigneeId,
-                priority,
+                priority: numericPriority,
                 labels,
                 dueString,
                 dueLang,
@@ -132,12 +163,13 @@ export function registerAddTask(server: McpServer, api: TodoistApi) {
 
             const task = await api.addTask(taskArgs as AddTaskArgs)
             const transformedTask = transformTaskPriority(task)
+            const filteredTask = filterTaskFields(transformedTask, DEFAULT_TASK_FIELDS)
 
             return {
                 content: [
                     {
                         type: 'text',
-                        text: JSON.stringify(transformedTask, null, 2),
+                        text: JSON.stringify(filteredTask, null, 2),
                     },
                 ],
             }
