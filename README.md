@@ -13,21 +13,19 @@ Connect this [Model Context Protocol](https://modelcontextprotocol.io/introducti
 
 | Aspect | **This Fork (todoist-mcp)** | **todoist-ai** |
 |--------|------------------------------|----------------|
-| **Tool Coverage** | ✅ 40 tools - Complete API coverage | ⚠️ 21 tools - Core features, expanding |
+| **Tool Coverage** | ⚡ 11 tools - Core task management | ⚠️ 21 tools - Full features, growing |
+| **Token Efficiency** | ✅ Minimal schemas + filtered responses | ❌ Full API payloads |
 | **Security** | ✅ Verification parameters prevent AI hallucination | ❌ No verification system |
 | **Architecture** | Pure MCP server | Dual: Direct import + MCP |
-| **Bulk Operations** | ✅ Move multiple tasks, bulk delete | ❌ Not available |
-| **Label Management** | ✅ Full support including shared labels | ❌ Not available |
-| **Productivity Features** | ✅ Stats, completed tasks tracking | ❌ Limited |
-| **Maturity** | Stable, production-ready | Early stage |
+| **Bulk Operations** | ✅ Move multiple tasks | ❌ Not available |
+| **Focus** | Personal GTD workflow | General purpose |
 
 ### Key Advantages of This Fork
 
 1. **🛡️ AI Hallucination Protection**: Every destructive operation requires human-readable verification (task/project names), preventing accidental data loss from AI confusing IDs
-2. **📦 Complete Feature Set**: All Todoist API endpoints implemented - labels, sections, comments, collaborators, productivity stats
-3. **⚡ Bulk Operations**: Efficiently move or delete multiple tasks at once
-4. **📊 Advanced Features**: Productivity statistics, completed tasks by date range, shared labels
-5. **🔄 Proven Stability**: Battle-tested with comprehensive error handling
+2. **⚡ Token-Efficient**: Reduced tool count and filtered response payloads minimize context window usage
+3. **🎯 Focused Toolset**: Core task management operations only—no rarely-used features cluttering the tool list
+4. **📦 Smart Responses**: Task, project, and section responses return only essential fields
 
 ## 🔗 **Upstream Relationship**
 
@@ -46,51 +44,55 @@ This MCP server implements **AI Hallucination Protection** through redundant ver
 
 ### 🔍 **Before vs After: Enhanced Tool Call Visibility**
 
-This fork adds human-readable verification parameters to tool calls, making it immediately clear what operations are being performed:
+This fork adds human-readable verification parameters to destructive tool calls, making it immediately clear what's being modified:
 
-| **Operation** | **Original Fork** | **This Fork (Security-Enhanced)** |
-|---------------|-------------------|-----------------------------------|
-| Get Project | `todoist-mcp - get-project (MCP)(projectId: "2331449668")` | `todoist-mcp - get-project (MCP)(projectId: "2331449668", projectName: "Inbox")` |
-| Get Tasks | `todoist-mcp - get-tasks (MCP)(projectId: "2331449668")` | `todoist-mcp - get-tasks (MCP)(projectId: "2331449668", projectName: "Inbox")` |
-| Delete Task | `todoist-mcp - delete-task (MCP)(taskId: "8036534251")` | `todoist-mcp - delete-task (MCP)(taskId: "8036534251", taskName: "Buy groceries", projectName: "Personal")` |
-| Close Task | `todoist-mcp - close-task (MCP)(taskId: "8036534251")` | `todoist-mcp - close-task (MCP)(taskId: "8036534251", taskName: "Submit report", projectName: "Work")` |
-| Update Task | `todoist-mcp - update-task (MCP)(taskId: "8036534251")` | `todoist-mcp - update-task (MCP)(taskId: "8036534251", taskName: "Review document", projectName: "Work")` |
-| Move Tasks | `todoist-mcp - move-tasks (MCP)(taskVerifications: [...])` | `todoist-mcp - move-tasks (MCP)(taskVerifications: [{"taskName": "Call client", "currentProjectName": "Inbox"}])` |
-| Delete Project | `todoist-mcp - delete-project (MCP)(projectId: "2331449668")` | `todoist-mcp - delete-project (MCP)(projectId: "2331449668", projectName: "Old Project")` |
-| Update Comment | `todoist-mcp - update-comment (MCP)(commentId: "1234567890")` | `todoist-mcp - update-comment (MCP)(commentId: "1234567890", currentCommentContent: "This needs revision", projectName: "Work")` |
+| **Operation** | **Without Verification** | **With Verification** |
+|---------------|--------------------------|----------------------|
+| Close Task | `close-task(taskId: "8036534251")` | `close-task(taskId: "8036534251", taskName: "Submit report", projectName: "Work")` |
+| Update Task | `update-task(taskId: "8036534251")` | `update-task(taskId: "8036534251", taskName: "Review document", projectName: "Work")` |
+| Delete Task | `delete-task(taskId: "8036534251")` | `delete-task(taskId: "8036534251", taskName: "Buy groceries", projectName: "Personal")` |
+| Move Tasks | `move-tasks(taskVerifications: [...])` | `move-tasks(taskVerifications: [{"taskName": "Call client", "currentProjectName": "Inbox"}])` |
 
-**Result**: You can immediately see what's being modified without having to decode opaque IDs, dramatically reducing the risk of accidental operations due to AI hallucination.
+**Result**: You can immediately see what's being modified without having to decode opaque IDs, reducing the risk of accidental operations from AI hallucination.
 
 ## Functionality
 
-This integration implements all the APIs available from the [Todoist TypeScript Client](https://doist.github.io/todoist-api-typescript/api/classes/TodoistApi/), providing access to:
+This fork provides a **streamlined subset** of the [Todoist TypeScript Client](https://doist.github.io/todoist-api-typescript/api/classes/TodoistApi/) focused on core task management with minimal token overhead.
 
-### Task Management
-- Create tasks (with content, descriptions, due dates, priorities, labels, and more)
-- Create tasks with natural language (e.g., "Submit report by Friday 5pm #Work")
-- Retrieve tasks (individual, filtered, or all tasks)
-- Retrieve completed tasks (by completion date or due date)
-- Get productivity statistics
-- Update tasks
-- Move tasks (individually or in batches) **🛡️ Requires verification**
-- Close/reopen tasks **🛡️ Requires verification**
-- Delete tasks **🛡️ Requires verification**
+### Available Tools (11 total)
 
-### Project Management
-- Create, retrieve, update, and delete projects **🛡️ Delete requires verification**
+| Tool | Description | Verification |
+|------|-------------|--------------|
+| `get-projects` | List all projects (returns id, name, parentId only) | - |
+| `get-sections` | List sections in a project | - |
+| `get-task` | Get a single task by ID | - |
+| `get-tasks` | Get all tasks, optionally filtered by project | - |
+| `get-tasks-by-filter` | Query tasks using Todoist filter syntax | - |
+| `add-task` | Create a new task | - |
+| `update-task` | Modify an existing task | 🛡️ taskName, projectName |
+| `close-task` | Complete a task | 🛡️ taskName, projectName |
+| `delete-task` | Delete a task permanently | 🛡️ taskName, projectName |
+| `move-tasks` | Move tasks between projects/sections | 🛡️ taskName, currentProjectName |
+| `add-comment` | Add a comment to a task or project | - |
 
-### Section Management
-- Create, retrieve, update, and delete sections within projects **🛡️ Update/delete requires verification**
+### Response Field Filtering
 
-### Comment Management
-- Add, retrieve, update, and delete comments for tasks or projects **🛡️ Update/delete requires verification**
+To reduce token usage, responses only include essential fields:
 
-### Label Management
-- Create, retrieve, update, and delete labels
-- Manage shared labels
+- **Tasks**: id, content, description, due, priority, labels, projectId, sectionId, parentId
+- **Projects**: id, name, parentId
+- **Sections**: id, projectId, name
 
-### Collaboration
-- Get collaborators for projects
+### Disabled Tools
+
+The following tools are available in the codebase but disabled by default to reduce context overhead. Uncomment imports in `src/index.ts` to enable:
+
+- Labels: add, get, update, delete, shared label operations
+- Projects: add, update, delete
+- Sections: add, update, delete
+- Comments: get, update, delete
+- Productivity: stats, completed tasks tracking
+- Tasks: quick-add, reopen, bulk-delete
 
 ## Setup
 
@@ -150,34 +152,25 @@ Example with custom API version:
 claude mcp add todoist-mcp -e TODOIST_API_KEY=your_key -e TODOIST_API_VERSION=9.216 -- node $(pwd)/build/index.js
 ```
 
-## 🛡️ Verification Requirements for Destructive Operations
+## 🛡️ Verification Requirements
 
-To prevent AI hallucination errors, destructive operations require additional verification parameters:
+To prevent AI hallucination errors, destructive operations require verification parameters that confirm the intended target:
 
-### Task Operations
-- **Close Task**: Requires `taskName` and `projectName`
-- **Reopen Task**: Requires `taskName` and `projectName`  
-- **Delete Task**: Requires `taskName` and `projectName`
-- **Move Tasks**: Requires `taskName` and `currentProjectName` for each task
+| Operation | Required Parameters |
+|-----------|---------------------|
+| `update-task` | taskName, projectName |
+| `close-task` | taskName, projectName |
+| `delete-task` | taskName, projectName |
+| `move-tasks` | taskName, currentProjectName (per task) |
 
-### Project Operations  
-- **Delete Project**: Requires `projectName`
+**Example**: When Claude calls `close-task`, it must provide both the task ID and a verification of the task name and project name. The server validates these match before executing.
 
-### Section Operations
-- **Update Section**: Requires `currentSectionName` and `projectName`
-- **Delete Section**: Requires `sectionName` and `projectName`
-
-### Comment Operations
-- **Update Comment**: Requires `commentContent` (first 50 chars), `taskName` (if on task), and `projectName`
-- **Delete Comment**: Requires `commentContent` (first 50 chars), `taskName` (if on task), and `projectName`
-
-**Example Usage:**
 ```
-Claude will automatically prompt for these verification parameters:
-"To delete this task, I need you to confirm:
-- Task name: 'Buy groceries'  
-- Project name: 'Personal'"
+Claude: "I'll mark 'Buy groceries' as complete."
+→ close-task(taskId: "123", taskName: "Buy groceries", projectName: "Personal")
 ```
+
+If the verification doesn't match, the operation fails safely with a clear error message.
 
 ## 🔄 Breaking Changes in v1.0+
 
